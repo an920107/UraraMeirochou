@@ -30,14 +30,13 @@ while True:
     os.system("cls")
     while True:
         try:
-            n = m = int(input("Enter the maze size (3 ~ 30): "))
-            if (n < 3 or n > 30):
+            n = m = int(input("Enter the maze size (5 ~ 60): "))
+            if (n < 5 or n > 60):
                 raise
         except:
             os.system("cls")
-            print("The size should be between 3 and 30.")
+            print("The size should be between 5 and 60.")
         else: break
-    n = m = m << 1
 
     edg = []
 

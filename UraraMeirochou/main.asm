@@ -189,6 +189,9 @@ DrawWall proc
 
 	call ClrScr
 
+	mov eax, gray (gray * 16)
+	call SetTextColor
+
 	mov esi, offset edgeData
 	.while 1
 		mov dl, [esi]
@@ -244,6 +247,10 @@ DrawWall proc
 	mov dl, 0
 	mov dh, 0
 	call Gotoxy
+
+	mov eax, white (black * 16) ; Reset color to black and white
+	call SetTextColor
+
 	ret
 
 DrawWall endp
@@ -340,6 +347,8 @@ DrawPlayer proc, char: byte
 
 	push edx
 	push eax
+	mov eax, yellow (red * 16)
+	call SetTextColor
 	mov dl, byte ptr playerNextCoord.x
 	mov dh, byte ptr playerNextCoord.y
 	call Gotoxy
@@ -348,6 +357,8 @@ DrawPlayer proc, char: byte
 	mov dl, 0
 	mov dh, 0
 	call Gotoxy
+	mov eax, white (black * 16) ; Reset color to black and white
+	call SetTextColor
 	pop eax
 	pop edx
 	ret

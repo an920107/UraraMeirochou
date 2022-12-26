@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    12/26/22 02:45:09
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    12/26/22 14:33:17
 main.asm						     Page 1 - 1
 
 
@@ -228,149 +228,156 @@ main.asm						     Page 1 - 1
 
  000001B7  E8 00000000 E		call ClrScr
 
- 000001BC  BE 0000001E R		mov esi, offset edgeData
+ 000001BC  B8 00000088			mov eax, gray (gray * 16)
+ 000001C1  E8 00000000 E		call SetTextColor
+
+ 000001C6  BE 0000001E R		mov esi, offset edgeData
 					.while 1
- 000001C1  8A 16				mov dl, [esi]
+ 000001CB  8A 16				mov dl, [esi]
 						.break .if dl == 0ffh
- 000001C8  8A 76 01				mov dh, [esi + 1]
+ 000001D2  8A 76 01				mov dh, [esi + 1]
 
 						.if dl == [esi + 2]
- 000001D0  B3 00					mov bl, 0 ; increase Y
+ 000001DA  B3 00					mov bl, 0 ; increase Y
 						.else
- 000001D4  B3 01					mov bl, 1 ; increase X
+ 000001DE  B3 01					mov bl, 1 ; increase X
 						.endif
 
- 000001D6  66| D1 E2				shl dx, 1
- 000001D9  02 15 0002801F R			add dl, mazePosOffset
- 000001DF  02 35 0002801F R			add dh, mazePosOffset
- 000001E5  B9 00000003				mov ecx, 3
+ 000001E0  66| D1 E2				shl dx, 1
+ 000001E3  02 15 0002801F R			add dl, mazePosOffset
+ 000001E9  02 35 0002801F R			add dh, mazePosOffset
+ 000001EF  B9 00000003				mov ecx, 3
 						.while cl
- 000001EC  53						push ebx
- 000001ED  51						push ecx
+ 000001F6  53						push ebx
+ 000001F7  51						push ecx
 
 							invoke TwoDToLine, dl, dh
- 000001F9  BF 0002001E R				mov edi, offset wallCharMap
- 000001FE  03 F8					add edi, eax
- 00000200  C6 07 01					mov [edi], byte ptr 1
+ 00000203  BF 0002001E R				mov edi, offset wallCharMap
+ 00000208  03 F8					add edi, eax
+ 0000020A  C6 07 01					mov [edi], byte ptr 1
 
- 00000203  E8 00000000 E				call Gotoxy
- 00000208  0F B6 05					movzx eax, wallCharacter
+ 0000020D  E8 00000000 E				call Gotoxy
+ 00000212  0F B6 05					movzx eax, wallCharacter
 	   0002801E R
- 0000020F  E8 00000000 E				call WriteChar
+ 00000219  E8 00000000 E				call WriteChar
 							
- 00000214  59						pop ecx
- 00000215  5B						pop ebx
+ 0000021E  59						pop ecx
+ 0000021F  5B						pop ebx
 							.if bl
- 0000021A  FE C2						inc dl
+ 00000224  FE C2						inc dl
 							.else
- 0000021E  FE C6						inc dh
+ 00000228  FE C6						inc dh
 							.endif
- 00000220  FE C9					dec cl
+ 0000022A  FE C9					dec cl
 						.endw
 
- 00000226  83 C6 04				add esi, 4
+ 00000230  83 C6 04				add esi, 4
 					.endw
 
- 0000022B  A0 0000001D R		mov al, mazeSize
- 00000230  D0 E0			shl al, 1
- 00000232  02 05 0002801F R		add al, mazePosOffset
- 00000238  A2 00028021 R		mov lowerBorder, al
- 0000023D  A2 00028023 R		mov rightBorder, al
- 00000242  A0 0002801F R		mov al, mazePosOffset
- 00000247  2C 02			sub al, 2
- 00000249  A2 00028020 R		mov upperBorder, al
- 0000024E  A2 00028022 R		mov leftBorder, al
+ 00000235  A0 0000001D R		mov al, mazeSize
+ 0000023A  D0 E0			shl al, 1
+ 0000023C  02 05 0002801F R		add al, mazePosOffset
+ 00000242  A2 00028021 R		mov lowerBorder, al
+ 00000247  A2 00028023 R		mov rightBorder, al
+ 0000024C  A0 0002801F R		mov al, mazePosOffset
+ 00000251  2C 02			sub al, 2
+ 00000253  A2 00028020 R		mov upperBorder, al
+ 00000258  A2 00028022 R		mov leftBorder, al
 
- 00000253  B2 00			mov dl, 0
- 00000255  B6 00			mov dh, 0
- 00000257  E8 00000000 E		call Gotoxy
- 0000025C  C3				ret
+ 0000025D  B2 00			mov dl, 0
+ 0000025F  B6 00			mov dh, 0
+ 00000261  E8 00000000 E		call Gotoxy
 
- 0000025D			DrawWall endp
+ 00000266  B8 0000000F			mov eax, white (black * 16) ; Reset color to black and white
+ 0000026B  E8 00000000 E		call SetTextColor
+
+ 00000270  C3				ret
+
+ 00000271			DrawWall endp
 
 
- 0000025D			KeyEvent proc, key: word
+ 00000271			KeyEvent proc, key: word
 					
- 00000260  50				push eax
- 00000261  52				push edx
- 00000262  66| 8B 45 08			mov ax, key
+ 00000274  50				push eax
+ 00000275  52				push edx
+ 00000276  66| 8B 45 08			mov ax, key
 					.if ax == 1177h ; Up
- 0000026C  66| A1				mov ax, playerCurCoord.y
+ 00000280  66| A1				mov ax, playerCurCoord.y
 	   00028026 R
- 00000272  FE C8				dec al
- 00000274  50					push eax
+ 00000286  FE C8				dec al
+ 00000288  50					push eax
 						invoke PosIsWall,
 							byte ptr playerCurCoord.x, al
- 00000281  8A D0				mov dl, al
- 00000283  58					pop eax
+ 00000295  8A D0				mov dl, al
+ 00000297  58					pop eax
 						.if al > upperBorder && dl == 0
- 00000290  66| A3					mov playerNextCoord.y, ax
+ 000002A4  66| A3					mov playerNextCoord.y, ax
 	   0002802A R
- 00000296  E8 00000135					call ErasePlayer
+ 000002AA  E8 00000149					call ErasePlayer
 							invoke DrawPlayer, '^'
- 000002A2  66| A3					mov playerCurCoord.y, ax
+ 000002B6  66| A3					mov playerCurCoord.y, ax
 	   00028026 R
 							invoke IncreaseStep
 						.endif
 					.endif
 
 					.if ax == 1F73h ; Down
- 000002B3  66| A1				mov ax, playerCurCoord.y
+ 000002C7  66| A1				mov ax, playerCurCoord.y
 	   00028026 R
- 000002B9  FE C0				inc al
- 000002BB  50					push eax
+ 000002CD  FE C0				inc al
+ 000002CF  50					push eax
 						invoke PosIsWall,
 							byte ptr playerCurCoord.x, al
- 000002C8  8A D0				mov dl, al
- 000002CA  58					pop eax
+ 000002DC  8A D0				mov dl, al
+ 000002DE  58					pop eax
 						.if al < lowerBorder && dl == 0
- 000002D7  66| A3					mov playerNextCoord.y, ax
+ 000002EB  66| A3					mov playerNextCoord.y, ax
 	   0002802A R
- 000002DD  E8 000000EE					call ErasePlayer
+ 000002F1  E8 00000102					call ErasePlayer
 							invoke DrawPlayer, 'v'
- 000002E9  66| A3					mov playerCurCoord.y, ax
+ 000002FD  66| A3					mov playerCurCoord.y, ax
 	   00028026 R
 							invoke IncreaseStep
 						.endif
 					.endif
 
 					.if ax == 1E61h ; Left
- 000002FA  66| A1				mov ax, playerCurCoord.x
+ 0000030E  66| A1				mov ax, playerCurCoord.x
 	   00028024 R
- 00000300  FE C8				dec al
- 00000302  50					push eax
- 00000303  8A D0				mov dl, al
+ 00000314  FE C8				dec al
+ 00000316  50					push eax
+ 00000317  8A D0				mov dl, al
 						invoke PosIsWall,
 							dl, byte ptr playerCurCoord.y
- 00000313  8A D0				mov dl, al
- 00000315  58					pop eax
+ 00000327  8A D0				mov dl, al
+ 00000329  58					pop eax
 						.if al > leftBorder && dl == 0
- 00000322  66| A3					mov playerNextCoord.x, ax
+ 00000336  66| A3					mov playerNextCoord.x, ax
 	   00028028 R
- 00000328  E8 000000A3					call ErasePlayer
+ 0000033C  E8 000000B7					call ErasePlayer
 							invoke DrawPlayer, '<'
- 00000334  66| A3					mov playerCurCoord.x, ax
+ 00000348  66| A3					mov playerCurCoord.x, ax
 	   00028024 R
 							invoke IncreaseStep
 						.endif
 					.endif
 
 					.if ax == 2064h ; Right
- 00000345  66| A1				mov ax, playerCurCoord.x
+ 00000359  66| A1				mov ax, playerCurCoord.x
 	   00028024 R
- 0000034B  FE C0				inc al
- 0000034D  50					push eax
- 0000034E  8A D0				mov dl, al
+ 0000035F  FE C0				inc al
+ 00000361  50					push eax
+ 00000362  8A D0				mov dl, al
 						invoke PosIsWall,
 							dl, byte ptr playerCurCoord.y
- 0000035E  8A D0				mov dl, al
- 00000360  58					pop eax
+ 00000372  8A D0				mov dl, al
+ 00000374  58					pop eax
 						.if al < rightBorder && dl == 0
- 0000036D  66| A3					mov playerNextCoord.x, ax
+ 00000381  66| A3					mov playerNextCoord.x, ax
 	   00028028 R
- 00000373  E8 00000058					call ErasePlayer
+ 00000387  E8 0000006C					call ErasePlayer
 							invoke DrawPlayer, '>'
- 0000037F  66| A3					mov playerCurCoord.x, ax
+ 00000393  66| A3					mov playerCurCoord.x, ax
 	   00028024 R
 							invoke IncreaseStep
 						.endif
@@ -381,144 +388,148 @@ main.asm						     Page 1 - 1
 						invoke DrawPlayer, 'v'
 					.endif
 
- 0000039C  5A				pop edx
- 0000039D  58				pop eax
+ 000003B0  5A				pop edx
+ 000003B1  58				pop eax
 					ret
 
- 000003A2			KeyEvent endp
+ 000003B6			KeyEvent endp
 
 
- 000003A2			DrawPlayer proc, char: byte
+ 000003B6			DrawPlayer proc, char: byte
 
- 000003A5  52				push edx
- 000003A6  50				push eax
- 000003A7  8A 15 00028028 R		mov dl, byte ptr playerNextCoord.x
- 000003AD  8A 35 0002802A R		mov dh, byte ptr playerNextCoord.y
- 000003B3  E8 00000000 E		call Gotoxy
- 000003B8  0F B6 45 08			movzx eax, char
- 000003BC  E8 00000000 E		call WriteChar
- 000003C1  B2 00			mov dl, 0
- 000003C3  B6 00			mov dh, 0
- 000003C5  E8 00000000 E		call Gotoxy
- 000003CA  58				pop eax
- 000003CB  5A				pop edx
+ 000003B9  52				push edx
+ 000003BA  50				push eax
+ 000003BB  B8 0000004E			mov eax, yellow (red * 16)
+ 000003C0  E8 00000000 E		call SetTextColor
+ 000003C5  8A 15 00028028 R		mov dl, byte ptr playerNextCoord.x
+ 000003CB  8A 35 0002802A R		mov dh, byte ptr playerNextCoord.y
+ 000003D1  E8 00000000 E		call Gotoxy
+ 000003D6  0F B6 45 08			movzx eax, char
+ 000003DA  E8 00000000 E		call WriteChar
+ 000003DF  B2 00			mov dl, 0
+ 000003E1  B6 00			mov dh, 0
+ 000003E3  E8 00000000 E		call Gotoxy
+ 000003E8  B8 0000000F			mov eax, white (black * 16) ; Reset color to black and white
+ 000003ED  E8 00000000 E		call SetTextColor
+ 000003F2  58				pop eax
+ 000003F3  5A				pop edx
 					ret
 
- 000003D0			DrawPlayer endp
+ 000003F8			DrawPlayer endp
 
 
- 000003D0			ErasePlayer proc uses eax edx
+ 000003F8			ErasePlayer proc uses eax edx
 
- 000003D2  8A 15 00028024 R		mov dl, byte ptr playerCurCoord.x
- 000003D8  8A 35 00028026 R		mov dh, byte ptr playerCurCoord.y
- 000003DE  E8 00000000 E		call Gotoxy
- 000003E3  B8 00000020			mov eax, " "
- 000003E8  E8 00000000 E		call WriteChar
+ 000003FA  8A 15 00028024 R		mov dl, byte ptr playerCurCoord.x
+ 00000400  8A 35 00028026 R		mov dh, byte ptr playerCurCoord.y
+ 00000406  E8 00000000 E		call Gotoxy
+ 0000040B  B8 00000020			mov eax, " "
+ 00000410  E8 00000000 E		call WriteChar
 					ret
 
- 000003F0			ErasePlayer ENDP
+ 00000418			ErasePlayer ENDP
 
 
- 000003F0			TwoDToLine proc, x: byte, y: byte
+ 00000418			TwoDToLine proc, x: byte, y: byte
 					
- 000003F3  53				push ebx
- 000003F4  8A 1D 0000001D R		mov bl, mazeSize
- 000003FA  D0 E3			shl bl, 1
- 000003FC  FE CB			dec bl
- 000003FE  02 1D 0002801F R		add bl, mazePosOffset
- 00000404  0F B6 45 0C			movzx eax, y
- 00000408  F6 E3			mul bl
- 0000040A  66| 03 45 08			add ax, word ptr x
- 0000040E  5B				pop ebx
+ 0000041B  53				push ebx
+ 0000041C  8A 1D 0000001D R		mov bl, mazeSize
+ 00000422  D0 E3			shl bl, 1
+ 00000424  FE CB			dec bl
+ 00000426  02 1D 0002801F R		add bl, mazePosOffset
+ 0000042C  0F B6 45 0C			movzx eax, y
+ 00000430  F6 E3			mul bl
+ 00000432  66| 03 45 08			add ax, word ptr x
+ 00000436  5B				pop ebx
 					ret
 
- 00000413			TwoDtoLine endp
+ 0000043B			TwoDtoLine endp
 
 
- 00000413			PosIsWall proc, x: byte, y: byte
+ 0000043B			PosIsWall proc, x: byte, y: byte
 					
- 00000416  56				push esi
- 00000417  BE 0002001E R		mov esi, offset wallCharMap
+ 0000043E  56				push esi
+ 0000043F  BE 0002001E R		mov esi, offset wallCharMap
 					invoke TwoDToLine, x, y
- 00000429  03 F0			add esi, eax
- 0000042B  8A 06			mov al, [esi]
- 0000042D  5E				pop esi
+ 00000451  03 F0			add esi, eax
+ 00000453  8A 06			mov al, [esi]
+ 00000455  5E				pop esi
 					ret
 
- 00000432			PosIsWall endp
+ 0000045A			PosIsWall endp
 
 
- 00000432			IsGameOver proc
+ 0000045A			IsGameOver proc
 					
- 00000432  8A 25 00028024 R		mov ah, byte ptr playerCurCoord.x
- 00000438  A0 00028026 R		mov al, byte ptr playerCurCoord.y
- 0000043D  FE C4			inc ah
- 0000043F  FE C0			inc al
+ 0000045A  8A 25 00028024 R		mov ah, byte ptr playerCurCoord.x
+ 00000460  A0 00028026 R		mov al, byte ptr playerCurCoord.y
+ 00000465  FE C4			inc ah
+ 00000467  FE C0			inc al
 					.if al == lowerBorder || ah == rightBorder
- 00000451  B0 01				mov al, 1
+ 00000479  B0 01				mov al, 1
 					.else
- 00000455  80 EC 02				sub ah, 2
- 00000458  2C 02				sub al, 2
+ 0000047D  80 EC 02				sub ah, 2
+ 00000480  2C 02				sub al, 2
 						.if	al == upperBorder || ah == leftBorder
- 0000046A  B0 01					mov al, 1
+ 00000492  B0 01					mov al, 1
 						.else
- 0000046E  B0 00					mov al, 0
+ 00000496  B0 00					mov al, 0
 						.endif
 					.endif
- 00000470  C3				ret
+ 00000498  C3				ret
 
- 00000471			IsGameOver endp
+ 00000499			IsGameOver endp
 
- 00000471			Timer proc uses eax ebx ecx edx
+ 00000499			Timer proc uses eax ebx ecx edx
 
- 00000475			L1:
+ 0000049D			L1:
 				    invoke GetSystemTime,addr _st
- 0000047F  BA 00000000 R	    mov edx, offset _st
- 00000484  0F B7 4A 0C		    movzx ecx, word ptr SYSTEMTIME.wsecond[edx]
- 00000488  8B 1D 0002803F R		mov ebx, initTime
- 0000048E  3B D9		    cmp ebx, ecx
- 00000490  74 2B			je L3
- 00000492  EB 00		    jmp L2
- 00000494			L2:
- 00000494  B2 00			mov dl, 0
- 00000496  B6 01			mov dh, 1
- 00000498  E8 00000000 E		call Gotoxy
- 0000049D  BA 00028038 R		mov edx, offset timeString
- 000004A2  E8 00000000 E		call WriteString
- 000004A7  A1 00028043 R		mov eax, currentTime
- 000004AC  40			    inc eax
- 000004AD  A3 00028043 R		mov currentTime, eax
- 000004B2  E8 00000000 E	    call WriteDec
- 000004B7  89 0D 0002803F R		mov initTime, ecx
+ 000004A7  BA 00000000 R	    mov edx, offset _st
+ 000004AC  0F B7 4A 0C		    movzx ecx, word ptr SYSTEMTIME.wsecond[edx]
+ 000004B0  8B 1D 0002803F R		mov ebx, initTime
+ 000004B6  3B D9		    cmp ebx, ecx
+ 000004B8  74 2B			je L3
+ 000004BA  EB 00		    jmp L2
+ 000004BC			L2:
+ 000004BC  B2 00			mov dl, 0
+ 000004BE  B6 01			mov dh, 1
+ 000004C0  E8 00000000 E		call Gotoxy
+ 000004C5  BA 00028038 R		mov edx, offset timeString
+ 000004CA  E8 00000000 E		call WriteString
+ 000004CF  A1 00028043 R		mov eax, currentTime
+ 000004D4  40			    inc eax
+ 000004D5  A3 00028043 R		mov currentTime, eax
+ 000004DA  E8 00000000 E	    call WriteDec
+ 000004DF  89 0D 0002803F R		mov initTime, ecx
 
- 000004BD			L3:
+ 000004E5			L3:
 					ret
 
- 000004C2			Timer endp
+ 000004EA			Timer endp
 
- 000004C2			IncreaseStep proc uses eax edx
+ 000004EA			IncreaseStep proc uses eax edx
 
- 000004C4  A1 0002802C R		mov eax, currentStep
- 000004C9  40				inc eax
- 000004CA  A3 0002802C R		mov currentStep, eax
+ 000004EC  A1 0002802C R		mov eax, currentStep
+ 000004F1  40				inc eax
+ 000004F2  A3 0002802C R		mov currentStep, eax
 					ret
 
- 000004D2			IncreaseStep endp
+ 000004FA			IncreaseStep endp
 
- 000004D2			PrintStep proc uses eax edx
+ 000004FA			PrintStep proc uses eax edx
 
- 000004D4  66| BA 0000			mov dx, 0
- 000004D8  E8 00000000 E		call gotoxy
- 000004DD  BA 00028030 R		mov edx, offset stepString
- 000004E2  E8 00000000 E		call WriteString
- 000004E7  A1 0002802C R		mov eax, currentStep
- 000004EC  E8 00000000 E	    call WriteDec
+ 000004FC  66| BA 0000			mov dx, 0
+ 00000500  E8 00000000 E		call gotoxy
+ 00000505  BA 00028030 R		mov edx, offset stepString
+ 0000050A  E8 00000000 E		call WriteString
+ 0000050F  A1 0002802C R		mov eax, currentStep
+ 00000514  E8 00000000 E	    call WriteDec
 					ret
 
- 000004F4			PrintStep endp
+ 0000051C			PrintStep endp
 
 				end main
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    12/26/22 02:45:09
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    12/26/22 14:33:17
 main.asm						     Symbols 2 - 1
 
 
@@ -614,7 +625,7 @@ FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _BSS . . . . . . . . . . . . . .	32 Bit	 00000010 Para	  Public  'BSS'  
 _DATA  . . . . . . . . . . . . .	32 Bit	 00028047 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000004F4 Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000051C Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -628,12 +639,12 @@ CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-DrawPlayer . . . . . . . . . . .	P Near	 000003A2 _TEXT	Length= 0000002E Public STDCALL
+DrawPlayer . . . . . . . . . . .	P Near	 000003B6 _TEXT	Length= 00000042 Public STDCALL
   char . . . . . . . . . . . . .	Byte	 bp + 00000008
-DrawWall . . . . . . . . . . . .	P Near	 000001B7 _TEXT	Length= 000000A6 Public STDCALL
+DrawWall . . . . . . . . . . . .	P Near	 000001B7 _TEXT	Length= 000000BA Public STDCALL
 DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-ErasePlayer  . . . . . . . . . .	P Near	 000003D0 _TEXT	Length= 00000020 Public STDCALL
+ErasePlayer  . . . . . . . . . .	P Near	 000003F8 _TEXT	Length= 00000020 Public STDCALL
 ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FileTimeToDosDateTime  . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FileTimeToSystemTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -664,10 +675,10 @@ HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-IncreaseStep . . . . . . . . . .	P Near	 000004C2 _TEXT	Length= 00000010 Public STDCALL
+IncreaseStep . . . . . . . . . .	P Near	 000004EA _TEXT	Length= 00000010 Public STDCALL
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-IsGameOver . . . . . . . . . . .	P Near	 00000432 _TEXT	Length= 0000003F Public STDCALL
-KeyEvent . . . . . . . . . . . .	P Near	 0000025D _TEXT	Length= 00000145 Public STDCALL
+IsGameOver . . . . . . . . . . .	P Near	 0000045A _TEXT	Length= 0000003F Public STDCALL
+KeyEvent . . . . . . . . . . . .	P Near	 00000271 _TEXT	Length= 00000145 Public STDCALL
   key  . . . . . . . . . . . . .	Word	 bp + 00000008
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -677,10 +688,10 @@ OpenInputFile  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 ParseDecimal32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ParseInteger32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 PeekConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-PosIsWall  . . . . . . . . . . .	P Near	 00000413 _TEXT	Length= 0000001F Public STDCALL
+PosIsWall  . . . . . . . . . . .	P Near	 0000043B _TEXT	Length= 0000001F Public STDCALL
   x  . . . . . . . . . . . . . .	Byte	 bp + 00000008
   y  . . . . . . . . . . . . . .	Byte	 bp + 0000000C
-PrintStep  . . . . . . . . . . .	P Near	 000004D2 _TEXT	Length= 00000022 Public STDCALL
+PrintStep  . . . . . . . . . . .	P Near	 000004FA _TEXT	Length= 00000022 Public STDCALL
 Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Randomize  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -716,11 +727,11 @@ Str_length . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 Str_trim . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Str_ucase  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SystemTimeToFileTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-Timer  . . . . . . . . . . . . .	P Near	 00000471 _TEXT	Length= 00000051 Public STDCALL
-  L1 . . . . . . . . . . . . . .	L Near	 00000475 _TEXT	
-  L2 . . . . . . . . . . . . . .	L Near	 00000494 _TEXT	
-  L3 . . . . . . . . . . . . . .	L Near	 000004BD _TEXT	
-TwoDToLine . . . . . . . . . . .	P Near	 000003F0 _TEXT	Length= 00000023 Public STDCALL
+Timer  . . . . . . . . . . . . .	P Near	 00000499 _TEXT	Length= 00000051 Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 0000049D _TEXT	
+  L2 . . . . . . . . . . . . . .	L Near	 000004BC _TEXT	
+  L3 . . . . . . . . . . . . . .	L Near	 000004E5 _TEXT	
+TwoDToLine . . . . . . . . . . .	P Near	 00000418 _TEXT	Length= 00000023 Public STDCALL
   x  . . . . . . . . . . . . . .	Byte	 bp + 00000008
   y  . . . . . . . . . . . . . .	Byte	 bp + 0000000C
 WaitMsg  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
